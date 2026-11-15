@@ -16,7 +16,20 @@ MONTHLY_DIR = PROJECT_ROOT / "data" / "analysis" / "monthly"
 
 
 def get_district_slug(district_name: str) -> str:
-    return district_name.strip().lower().replace(" ", "_").replace("-", "_")
+    district = district_name.strip().lower()
+
+    district_mapping = {
+        "kancheepuram": "kanchipuram",
+        "thoothukudi": "tuticorin",
+        "tiruvarur": "thiruvarur",
+        "viluppuram": "villupuram",
+        "vilupuram": "villupuram",
+    }
+
+    return district_mapping.get(
+        district,
+        district.replace(" ", "_").replace("-", "_")
+    )
 
 
 def read_csv_file(file_path: Path):

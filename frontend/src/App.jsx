@@ -42,7 +42,13 @@ function App() {
   const [compareData, setCompareData] = useState([]);
   const [trendLoading, setTrendLoading] = useState(false);
   const [trendError, setTrendError] = useState("");
+const [startDate, setStartDate] = useState("2001-01-01");
+const [endDate, setEndDate] = useState("2020-12-31");
 
+const [appliedStartYear, setAppliedStartYear] = useState(2001);
+const [appliedEndYear, setAppliedEndYear] = useState(2020);
+
+const [dateRangeError, setDateRangeError] = useState("");
   // Load district list and dataset coverage.
   useEffect(() => {
     async function loadData() {
