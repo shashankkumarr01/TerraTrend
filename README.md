@@ -1,99 +1,203 @@
+# 🌍 TerraTrend
 
-# TerraTrend
+### Exploring Climate Trends Across Tamil Nadu Using NASA Earth Science Data
 
-TerraTrend is a climate trend analysis platform built for the
-NASA Space Apps Challenge 2026.
+TerraTrend is an interactive climate data analysis and visualization platform developed for the **NASA Space Apps Challenge 2026**.
 
-## Project Overview
+The platform uses NASA Earth science datasets to explore historical climate patterns across Tamil Nadu, India, through interactive geographical maps, district-level analysis and data visualizations.
 
-The project analyzes NASA Earth science datasets to identify,
-visualize, and understand long-term climate changes across
-Tamil Nadu, India.
+## 🚀 Key Features
 
-## Current Development Status
+- **Interactive Tamil Nadu Map:** Explore climate information across Tamil Nadu districts.
+- **Annual Climate Trends:** Analyze historical climate patterns over multiple years.
+- **Monthly Climate Analysis:** Explore monthly variations in climate data.
+- **District Comparison:** Compare climate trends between different districts.
+- **Dataset Coverage:** View available data coverage across districts and time periods.
+- **Interactive Dashboard:** Visualize climate information through charts and geographical representations.
+- **REST API:** Retrieve processed climate data through FastAPI endpoints.
 
-- [x] FastAPI backend setup
-- [x] API endpoints implemented and tested
-- [x] NASA MERRA-2 dataset integration
-- [x] NetCDF-4 file inspection
-- [x] Temperature extraction (T2M)
-- [x] NetCDF to CSV conversion
-- [x] Basic data quality validation
-- [ ] Automated monthly data download
-- [ ] Tamil Nadu boundary masking
-- [ ] Long-term climate trend analysis
-- [ ] Data visualization
+## 🛰️ NASA Data Source
 
-## Technology Stack
+TerraTrend uses NASA's MERRA-2 (Modern-Era Retrospective Analysis for Research and Applications, Version 2) dataset.
 
+| Parameter | Details |
+|---|---|
+| Dataset | MERRA-2 |
+| Product | M2TMNXSLV |
+| Variable | T2M |
+| Description | 2-metre air temperature |
+| Provider | NASA |
+| Data Portal | NASA GES DISC |
+
+Data portal: https://disc.gsfc.nasa.gov/
+
+## 🛠️ Technology Stack
+
+### Frontend
+- React.js
+- JavaScript
+- CSS
+- Recharts
+- React Leaflet
+- Leaflet
+
+### Backend
 - Python
 - FastAPI
+- Uvicorn
 - Pandas
 - NumPy
 - Xarray
 - NetCDF4
 
-## Project Structure
+### Data Processing
+- NASA MERRA-2
+- NetCDF-4
+- CSV datasets
+- Python data processing scripts
+
+## 📁 Project Structure
 
 ```text
 TerraTrend/
+│
 ├── backend/
 │   ├── app/
-│   ├── main.py
-│   ├── inspect_merra2.py
+│   │   ├── routes/
+│   │   │   ├── coverage.py
+│   │   │   └── trends.py
+│   │   └── main.py
+│   │
+│   ├── analyze_climate_trends.py
+│   ├── check_spatial_coverage.py
+│   ├── export_district_csvs.py
+│   ├── process_districtwise.py
 │   ├── process_merra2.py
+│   ├── validate_climate_data.py
 │   └── requirements.txt
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   └── App.jsx
+│   └── package.json
+│
 ├── data/
-│   ├── raw/
-│   └── processed/
+│   └── analysis/
+│       ├── annual/
+│       └── monthly/
+│
 ├── .gitignore
 └── README.md
 ```
 
-## Installation
+## ⚙️ Installation and Setup
 
-Clone the repository:
+### Prerequisites
+
+- Python 3.10 or later
+- Node.js and npm
+- Git
+
+### 1. Clone the Repository
 
 ```bash
-git clone YOUR_GITHUB_REPOSITORY_URL
+git clone https://github.com/shashankkumarr01/TerraTrend.git
+
 cd TerraTrend
+```
+
+### 2. Backend Setup
+
+Navigate to the backend directory:
+
+```bash
+cd backend
 ```
 
 Create a virtual environment:
 
 ```bash
-python -m venv backend/venv
+python -m venv venv
 ```
 
-Activate it on Windows:
+Activate it on Windows PowerShell:
 
 ```powershell
-backend\venv\Scripts\Activate.ps1
+.\venv\Scripts\Activate.ps1
 ```
 
 Install dependencies:
 
 ```bash
-pip install -r backend/requirements.txt
+pip install -r requirements.txt
 ```
 
-## NASA Dataset
+Start the FastAPI server:
 
-TerraTrend uses NASA MERRA-2 data.
-
-Product: M2TMNXSLV  
-Variable: T2M  
-Description: 2-metre air temperature  
-Source: NASA GES DISC
-
-NASA datasets are not included in this repository.
-Download the required data separately and place it in:
-
-```text
-data/raw/merra2/
+```bash
+python -m uvicorn app.main:app --reload
 ```
 
-## Team
+Backend URL:
 
-NASA Space Apps Challenge 2026  
-Project: TerraTrend
+http://127.0.0.1:8000
+
+API documentation:
+
+http://127.0.0.1:8000/docs
+
+### 3. Frontend Setup
+
+Open a new terminal:
+
+```bash
+cd frontend
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Open the local URL displayed in your terminal.
+
+## 🔗 API Endpoints
+
+The backend provides REST APIs for climate data exploration.
+
+| Endpoint | Purpose |
+|---|---|
+| `/api/coverage/` | Retrieve dataset coverage information |
+| Trends endpoints | Retrieve annual, monthly and comparison data |
+
+For the complete available endpoint list, visit:
+
+http://127.0.0.1:8000/docs
+
+## 🎯 Project Objective
+
+TerraTrend aims to make complex Earth science datasets easier to understand by transforming historical climate information into accessible geographical and statistical visualizations.
+
+By connecting NASA Earth science data with district-level exploration, the platform helps users investigate climate patterns across Tamil Nadu.
+
+## 👥 Team
+
+**Team Vibe Coders 001**
+
+Developed for the NASA Space Apps Challenge 2026.
+
+## 📜 Acknowledgements
+
+- NASA Earth Science
+- NASA MERRA-2
+- NASA GES DISC
+- NASA Space Apps Challenge 2026
