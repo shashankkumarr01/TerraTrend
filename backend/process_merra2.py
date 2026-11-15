@@ -1,5 +1,7 @@
+
 import xarray as xr
 import pandas as pd
+import numpy as np
 from pathlib import Path
 
 # 1. Define project folders
@@ -10,138 +12,92 @@ output_folder = project / "data" / "processed"
 
 output_folder.mkdir(parents=True, exist_ok=True)
 
-# 2. Find NASA NetCDF files
-files = list(input_folder.glob("*.nc4"))
+# 2. Find all NASA NetCDF files
+files = sorted(input_folder.glob("*.nc4"))
 
 if not files:
     raise FileNotFoundError("No MERRA-2 files found")
 
-file_path = files[0]
+print("Total files found:", len(files))
 
-print("Processing:", file_path.name)
+all_data = []
 
-# 3. Open NASA dataset
-with xr.open_dataset(file_path) as ds:
+# 3. Process every monthly file
+for index, file_path in enumerate(files, start=1):
 
-    if "T2M" not in ds:
-        raise ValueError("T2M variable not found")
+    print(f"\n[{index}/{len(files)}] Processing: {file_path.name}")
 
-    # 4. Extract temperature
-    temperature = ds["T2M"]
+    with xr.open_dataset(file_path, engine="netcdf4") as ds:
 
-    # 5. Convert Kelvin to Celsius
-    temperature_c = temperature - 273.15
+        if "T2M" not in ds:
+            raise ValueError(f"T2M variable not found: {file_path.name}")
 
-    # 6. Convert Xarray data into a Pandas DataFrame
-    df = temperature_c.to_dataframe(
-        name="temperature_c"
-    ).reset_index()
+        # 4. Extract temperature
+        temperature = ds["T2M"]
 
-    # 7. Rename columns
-    df = df.rename(columns={
-        "lat": "latitude",
-        "lon": "longitude"
-    })
+        # 5. Remove invalid and missing values
+        temperature = temperature.where(
+            np.isfinite(temperature) & (temperature < 1e10)
+        )
 
-    # 8. Add original NASA temperature values
-    df["temperature_k"] = df["temperature_c"] + 273.15
+        # 6. Convert Kelvin to Celsius
+        temperature_c = temperature - 273.15
 
-    # 9. Select useful columns
-    df = df[
-        [
-            "time",
-            "latitude",
-            "longitude",
-            "temperature_k",
-            "temperature_c"
+        # 7. Convert to Pandas DataFrame
+        df = temperature_c.to_dataframe(
+            name="temperature_c"
+        ).reset_index()
+
+        # 8. Rename coordinate columns
+        df = df.rename(columns={
+            "lat": "latitude",
+            "lon": "longitude"
+        })
+
+        # 9. Preserve original Kelvin values
+        df["temperature_k"] = df["temperature_c"] + 273.15
+
+        # 10. Select required columns
+        df = df[
+            [
+                "time",
+                "latitude",
+                "longitude",
+                "temperature_k",
+                "temperature_c"
+            ]
         ]
-    ]
 
-    # 10. Remove missing temperature records
-    df = df.dropna(subset=["temperature_c"])
+        # 11. Remove missing values
+        df = df.dropna(subset=["temperature_c"])
 
-    # 11. Save as CSV
-    output_file = output_folder / "merra2_temperature_june2010.csv"
+        all_data.append(df)
 
-    df.to_csv(output_file, index=False)
+# 12. Combine all monthly files
+final_df = pd.concat(all_data, ignore_index=True)
 
-    print("\nProcessing completed!")
-    print("Total records:", len(df))
-    print("Output file:", output_file)
+# 13. Sort records
+final_df = final_df.sort_values(
+    ["time", "latitude", "longitude"]
+).reset_index(drop=True)
 
-    print("\nTemperature summary:")
-    print(df["temperature_c"].describe())
+# 14. Save combined CSV
+output_file = output_folder / "merra2_temperature_2001_2020.csv"
 
-import xarray as xr
-import pandas as pd
-from pathlib import Path
+final_df.to_csv(output_file, index=False)
 
-# 1. Define project folders
-project = Path(__file__).resolve().parent.parent
+# 15. Display results
+print("\n========== PROCESSING COMPLETED ==========")
 
-input_folder = project / "data" / "raw" / "merra2"
-output_folder = project / "data" / "processed"
+print("Files processed:", len(files))
+print("Total records:", len(final_df))
+print("Output file:", output_file)
 
-output_folder.mkdir(parents=True, exist_ok=True)
+print("\nTemperature summary:")
+print(final_df["temperature_c"].describe())
 
-# 2. Find NASA NetCDF files
-files = list(input_folder.glob("*.nc4"))
+print("\nMissing values:")
+print(final_df.isna().sum())
 
-if not files:
-    raise FileNotFoundError("No MERRA-2 files found")
-
-file_path = files[0]
-
-print("Processing:", file_path.name)
-
-# 3. Open NASA dataset
-with xr.open_dataset(file_path) as ds:
-
-    if "T2M" not in ds:
-        raise ValueError("T2M variable not found")
-
-    # 4. Extract temperature
-    temperature = ds["T2M"]
-
-    # 5. Convert Kelvin to Celsius
-    temperature_c = temperature - 273.15
-
-    # 6. Convert Xarray data into a Pandas DataFrame
-    df = temperature_c.to_dataframe(
-        name="temperature_c"
-    ).reset_index()
-
-    # 7. Rename columns
-    df = df.rename(columns={
-        "lat": "latitude",
-        "lon": "longitude"
-    })
-
-    # 8. Add original NASA temperature values
-    df["temperature_k"] = df["temperature_c"] + 273.15
-
-    # 9. Select useful columns
-    df = df[
-        [
-            "time",
-            "latitude",
-            "longitude",
-            "temperature_k",
-            "temperature_c"
-        ]
-    ]
-
-    # 10. Remove missing temperature records
-    df = df.dropna(subset=["temperature_c"])
-
-    # 11. Save as CSV
-    output_file = output_folder / "merra2_temperature_june2010.csv"
-
-    df.to_csv(output_file, index=False)
-
-    print("\nProcessing completed!")
-    print("Total records:", len(df))
-    print("Output file:", output_file)
-
-    print("\nTemperature summary:")
-    print(df["temperature_c"].describe())
+print("\nDate range:")
+print(final_df["time"].min(), "to", final_df["time"].max())

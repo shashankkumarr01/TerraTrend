@@ -1,32 +1,19 @@
 
-# Python virtual environments
-venv/
-.venv/
-env/
-
-# Python cache
+# Python
 __pycache__/
 *.py[cod]
-.pytest_cache/
+venv/
+.venv/
 
-# Environment variables and secrets
+# Environment variables
 .env
-.env.*
-!.env.example
 
-# IDE settings
-.vscode/
-.idea/
-
-# NASA raw datasets
+# Raw NASA data
 data/raw/
 
-# Generated datasets
+# Generated processed datasets
 data/processed/
 
-# Jupyter
-.ipynb_checkpoints/
-
-# OS files
-.DS_Store
-Thumbs.db
+# Keep climate analysis results in GitHub
+!data/analysis/
+!data/analysis/**
